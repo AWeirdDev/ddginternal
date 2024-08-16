@@ -4,6 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "ddginternal"
+description = "Duckduckgo search, into the internal API."
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Rust",
@@ -11,10 +12,19 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
+dependencies = [
+  "primp"
+]
+
 [project.optional-dependencies]
 tests = [
     "pytest",
 ]
+
 [tool.maturin]
 python-source = "python"
 features = ["pyo3/extension-module"]
+
+[project.urls]
+"Homepage" = "https://github.com/AWeirdDev/ddgsearch"
+"Bug Tracker" = "https://github.com/AWeirdDev/ddgsearch/issues"

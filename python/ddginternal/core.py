@@ -1,12 +1,5 @@
-from definitely_typed import asyncily
-
 from .ddginternal import Result, get_djs, get_result_binding
 from .primp import Client, Response
-
-
-@asyncily
-def cget(client: Client, url: str, **kwargs):
-    return client.get(url, **kwargs)
 
 
 def raise_for_status(res: Response):
