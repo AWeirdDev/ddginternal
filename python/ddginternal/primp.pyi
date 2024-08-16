@@ -73,5 +73,5 @@ class Client:
         """
 
 class Response:
-    content: str
     text: str
+    status_code: int
