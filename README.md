@@ -1,4 +1,5 @@
-# ddginternal (ddgsearch)
+# ddginternal
+Duckduckgo search using the internal APIs.
 
 ```python
 from ddginternal import search
@@ -8,3 +9,12 @@ search("chocolate")
 ```
 
 The numbers indicate the amount of results received.
+
+**Key features**:
+- Private. Can your Google do that?
+- Light. One dependency explains it all.
+- Rust-backed. Faster parsing.
+
+***
+
+(c) 2024 AWeirdDev
