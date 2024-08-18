@@ -1,3 +1,3 @@
 import ddginternal
 
-print(ddginternal.organic_search("chocolate"))
+print(ddginternal.organic_search(""))

@@ -1,0 +1,46 @@
+name: ci 
+on:
+  push:
+    branches:
+      - master 
+      - main
+
+permissions:
+  contents: write
+jobs:
+  initial:
+    runs-on: ubuntu-latest
+    # checks if the changes are in the docs/ folder
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Git Credentials
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+      
+      - name: Checks if only the docs/ folder has changed
+        id: check_changes
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -v '^docs/'; then
+            echo "changes_outside_docs=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes_outside_docs=true" >> $GITHUB_OUTPUT
+          fi
+
+  deploy:
+      runs-on: ubuntu-latest
+      if: "steps.check_changes.outputs.changes_outside_docs == 'false'"
+      steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
+      - uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+      - run: pip install mkdocs-material 
+      - run: mkdocs gh-deploy --force
