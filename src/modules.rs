@@ -7,7 +7,7 @@ use crate::module_places;
 
 #[pyfunction]
 pub fn get_nrj_instances(djs: String) -> PyResult<Vec<(String, String)>> {
-    let re = Regex::new(r"(?m)nrj\('(\/.+\.js.*)'.*,'(.+)'");
+    let re = Regex::new(r"(?m)nrj\('(/[^/]+\.js.*)'.*,'(.+?)'\);");
 
     if let Ok(re) = re {
         Ok(re
@@ -55,7 +55,7 @@ pub fn assign_nrj_instances(instances: Vec<(String, String)>) -> Vec<Assignee> {
 
     for (nrj, instance) in instances {
         match instance.as_str() {
-            "places" => assignees.push(Assignee::Places(
+            "maps_places" => assignees.push(Assignee::Places(
                 module_places::PlacesModule::from_instance(nrj),
             )),
             _ => println!(
