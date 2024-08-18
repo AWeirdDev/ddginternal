@@ -1,4 +1,4 @@
-from .core import get_results, organic_search, search
+from .core import get_module, get_results, load_module_from_djs, organic_search, search
 from .ddginternal import RegexError, get_djs, get_embedded_abstract, get_result_binding
 
 __all__ = [
@@ -9,4 +9,6 @@ __all__ = [
     "get_embedded_abstract",
     "get_result_binding",
     "RegexError",
+    "get_module",
+    "load_module_from_djs",
 ]

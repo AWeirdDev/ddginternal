@@ -1,6 +1,12 @@
 from typing import Dict, Literal
 
-from .ddginternal import Result, get_djs, get_result_binding
+from .ddginternal import (
+    Result,
+    get_djs,
+    get_result_binding,
+    get_nrj_instances,
+    assign_nrj_instances,
+)
 from .primp import Client, Response
 
 
@@ -36,6 +42,27 @@ def organic_search(q: str) -> Dict[Literal["html", "djs"], str]:
     raise_for_status(djs_res)
 
     return {"html": res.text, "djs": djs_res.text}
+
+
+def get_module(name: str) -> str:
+    client = Client(impersonate="chrome_127", verify=False)
+    res = client.get("https://start.duckduckgo.com" + name)
+    raise_for_status(res)
+    return res.text
+
+
+def load_module_from_djs(djs: str) -> list:
+    results = []
+
+    modules = []
+    for url, instance in get_nrj_instances(djs):
+        modules.append((get_module(url), instance))
+
+    for assignee in assign_nrj_instances(modules):
+        if assignee.who() == "places":
+            results.append(assignee.places())
+
+    return results
 
 
 def get_results(html: str, djs: str) -> Result:
