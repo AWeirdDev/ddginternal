@@ -1,6 +1,6 @@
 """Duckduckgo internal APIs from Rust."""
 
-from typing import List, Optional
+from typing import Any, List, Optional
 
 def get_djs(html: str) -> str:
     """Gets `d.js` from the initial HTML.
@@ -31,6 +31,9 @@ def get_embedded_abstract(html: str) -> str:
     Raises:
         RegexError: If the regex fails to compile.
     """
+
+def get_nrj_instances(djs: str) -> List[tuple[str, str]]: ...
+def assign_nrj_instances(instances: List[tuple[str, str]]) -> List[Any]: ...
 
 class Result:
     web: List["_Web"]

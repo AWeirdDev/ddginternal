@@ -1,10 +1,14 @@
-use pyo3::{create_exception, prelude::*};
+use pyo3::prelude::*;
 use regex::Regex;
 
 mod abstract_text;
+mod exceptions;
 mod schema;
 
-create_exception!(module, RegexError, pyo3::exceptions::PyException);
+// extension modules (through nrj(...) in d.js)
+mod module_base;
+mod module_places;
+mod modules;
 
 #[pyfunction]
 fn get_djs(html: &str) -> PyResult<String> {
@@ -18,7 +22,7 @@ fn get_djs(html: &str) -> PyResult<String> {
             )),
         }
     } else {
-        Err(RegexError::new_err("failed to compile regex"))
+        Err(exceptions::RegexError::new_err("failed to compile regex"))
     }
 }
 
@@ -29,7 +33,7 @@ fn get_embedded_abstract(html: &str) -> PyResult<String> {
     if let Ok(re) = re {
         match re.captures(html) {
             Some(m) => Ok(m.get(1).unwrap().as_str().into()),
-            None => Err(RegexError::new_err(
+            None => Err(exceptions::RegexError::new_err(
                 "failed to get embedded abstract from html",
             )),
         }
@@ -118,8 +122,10 @@ fn ddginternal(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_embedded_abstract, m)?)?;
     m.add_function(wrap_pyfunction!(get_result_binding, m)?)?;
     m.add_function(wrap_pyfunction!(abstract_text::get_abstract, m)?)?;
+    m.add_function(wrap_pyfunction!(modules::get_nrj_instances, m)?)?;
+    m.add_function(wrap_pyfunction!(modules::assign_nrj_instances, m)?)?;
 
     m.add_class::<schema::Result>()?;
-    m.add("RegexError", py.get_type_bound::<RegexError>())?;
+    m.add("RegexError", py.get_type_bound::<exceptions::RegexError>())?;
     Ok(())
 }
