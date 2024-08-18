@@ -45,7 +45,7 @@ impl Web {
 
     #[getter]
     fn title(&self) -> String {
-        self.t.to_owned()
+        html2text::from_read(self.t.as_bytes(), usize::MAX)
     }
 
     fn __repr__(&self) -> String {
