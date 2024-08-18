@@ -29,7 +29,7 @@ jobs:
 
   deploy:
       runs-on: ubuntu-latest
-      if: "steps.check_changes.outputs.changes_outside_docs == 'false'"
+      if: github.job.initial.outputs.changes_outside_docs == 'true'
       steps:
       - uses: actions/setup-python@v5
         with:
