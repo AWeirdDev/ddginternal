@@ -1,7 +1,10 @@
-use pyo3::prelude::*;
+use pyo3::{create_exception, prelude::*};
 use regex::Regex;
 
+mod abstract_text;
 mod schema;
+
+create_exception!(module, RegexError, pyo3::exceptions::PyException);
 
 #[pyfunction]
 fn get_djs(html: &str) -> PyResult<String> {
@@ -10,8 +13,24 @@ fn get_djs(html: &str) -> PyResult<String> {
     if let Ok(re) = re {
         match re.captures(html) {
             Some(m) => Ok(m.get(1).unwrap().as_str().into()),
-            None => Err(pyo3::exceptions::PyRuntimeError::new_err(
-                "failed to get djs from html",
+            None => Err(pyo3::exceptions::PyIndexError::new_err(
+                "failed to get d.js from html",
+            )),
+        }
+    } else {
+        Err(RegexError::new_err("failed to compile regex"))
+    }
+}
+
+#[pyfunction]
+fn get_embedded_abstract(html: &str) -> PyResult<String> {
+    let re = Regex::new(r"DDG\.duckbar\.add\((.+?),null,.index.\);");
+
+    if let Ok(re) = re {
+        match re.captures(html) {
+            Some(m) => Ok(m.get(1).unwrap().as_str().into()),
+            None => Err(RegexError::new_err(
+                "failed to get embedded abstract from html",
             )),
         }
     } else {
@@ -72,26 +91,35 @@ fn get_news(content: String) -> Result<String, String> {
 }
 
 #[pyfunction]
-fn get_result_binding(content: String) -> PyResult<schema::Result> {
-    let page_layout = get_page_layout(content.to_owned());
+fn get_result_binding(html: String, djs: String) -> PyResult<schema::Result> {
+    let page_layout = get_page_layout(djs.to_owned());
 
     let images = {
-        let images = get_images(content.to_owned());
+        let images = get_images(djs.to_owned());
         images.unwrap_or("".to_string())
     };
 
     let news = {
-        let news = get_news(content.to_owned());
+        let news = get_news(djs.to_owned());
         news.unwrap_or("".to_string())
     };
 
-    Ok(schema::Result::new(page_layout, images, news))
+    let abstracts = {
+        let em = get_embedded_abstract(html.as_str());
+        em.unwrap_or("".to_string())
+    };
+
+    Ok(schema::Result::new(page_layout, images, news, abstracts))
 }
 
 #[pymodule]
-fn ddginternal(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn ddginternal(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_djs, m)?)?;
+    m.add_function(wrap_pyfunction!(get_embedded_abstract, m)?)?;
     m.add_function(wrap_pyfunction!(get_result_binding, m)?)?;
+    m.add_function(wrap_pyfunction!(abstract_text::get_abstract, m)?)?;
+
     m.add_class::<schema::Result>()?;
+    m.add("RegexError", py.get_type_bound::<RegexError>())?;
     Ok(())
 }

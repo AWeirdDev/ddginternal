@@ -4,6 +4,8 @@ use pyo3::prelude::*;
 
 use serde::Deserialize;
 
+use crate::abstract_text;
+
 #[derive(Deserialize, Clone)]
 #[pyclass]
 pub struct Web {
@@ -147,12 +149,14 @@ pub struct Result {
     web_results: Vec<Web>,
     images: Vec<Image>,
     news_articles: Vec<NewsArticle>,
+    #[pyo3(get, name = "abstract")]
+    abstract_info: Option<abstract_text::Abstract>
 }
 
 #[pymethods]
 impl Result {
     #[new]
-    pub fn new(page_layout: String, images: String, news: String) -> Self {
+    pub fn new(page_layout: String, images: String, news: String, abstracts: String) -> Self {
         let web_results = serde_json::from_str::<Vec<Web>>(&page_layout).unwrap();
 
         let images: Vec<Image> = {
@@ -175,10 +179,13 @@ impl Result {
             }
         };
 
+        let abstract_info = abstract_text::get_abstract(abstracts).ok();
+
         Self {
             web_results,
             images,
             news_articles,
+            abstract_info
         }
     }
 
@@ -199,10 +206,17 @@ impl Result {
 
     fn __repr__(&self) -> String {
         format!(
-            "Result(web=[...{}], images=[...{}], news=[...{}])",
+            "Result(web=[...{}], images=[...{}], news=[...{}], abstract={})",
             self.web().len(),
             self.images().len(),
-            self.news().len()
+            self.news().len(),
+            {
+                if let Some(_) = self.abstract_info {
+                    "Abstract(...)"
+                } else {
+                    "None"
+                }
+            }
         )
     }
 }

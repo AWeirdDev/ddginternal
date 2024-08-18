@@ -7,21 +7,38 @@ def get_djs(html: str) -> str:
 
     Args:
         html (str): The HTML.
+
+    Raises:
+        RegexError: If the regex fails to compile.
     """
 
-def get_result_binding(content: str):
-    """Gets the result binding from `d.js`.
+def get_result_binding(html: str, djs: str):
+    """Gets the result binding from HTML and `d.js`.
+
+    See :py:func:`ddginternal.organic_search`
 
     Args:
-        content (str): The `d.js` content.
+        html (str): The HTML.
+        djs (str): The `d.js` content.
+    """
+
+def get_embedded_abstract(html: str) -> str:
+    """Gets the embedded abstract from `d.js`.
+
+    Args:
+        html (str): The `d.js` content.
+
+    Raises:
+        RegexError: If the regex fails to compile.
     """
 
 class Result:
-    web: List["Web"]
-    images: List["Image"]
-    news: List["NewsArticle"]
+    web: List["_Web"]
+    images: List["_Image"]
+    news: List["_NewsArticle"]
+    abstract: Optional[object]
 
-class Web:
+class _Web:
     raw_description: str
     description: str
     domain: str
@@ -29,7 +46,7 @@ class Web:
     url: str
     title: str
 
-class Image:
+class _Image:
     url: str
     title: str
     description: str
@@ -37,7 +54,7 @@ class Image:
     width: int
     height: int
 
-class NewsArticle:
+class _NewsArticle:
     date: int
     excerpt: str
     title: str
@@ -45,3 +62,6 @@ class NewsArticle:
     source: str
     relative_time: str
     image: Optional[str]
+
+class RegexError(Exception):
+    """Represents a regex error."""
