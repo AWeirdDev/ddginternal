@@ -6,7 +6,7 @@ use serde_json::Value;
 use crate::module_base;
 
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PlacesModule {
     #[pyo3(get, name = "type")]
     type_: String,
@@ -25,7 +25,7 @@ pub struct PlacesModule {
 }
 
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Place {
     #[pyo3(get)]
     address: String,
@@ -68,7 +68,7 @@ pub struct Place {
 }
 
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Hours {
     #[pyo3(get)]
     table: HashMap<String, String>,
@@ -81,7 +81,7 @@ pub struct Hours {
 }
 
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Review {
     #[pyo3(get)]
     excerpt: String,
@@ -159,5 +159,12 @@ impl module_base::Module for PlacesModule {
                 })
                 .collect::<Vec<_>>(),
         }
+    }
+}
+
+#[pymethods]
+impl PlacesModule {
+    fn __repr__(&self) -> String {
+        format!("{:?}", self)
     }
 }
