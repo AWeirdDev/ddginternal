@@ -1,3 +1,3 @@
 import ddginternal
 
-print(ddginternal.get_djs("asdfadsf"))
+print(ddginternal.organic_search("chocolate"))

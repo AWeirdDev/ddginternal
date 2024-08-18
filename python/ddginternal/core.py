@@ -7,6 +7,11 @@ def raise_for_status(res: Response):
 
 
 def organic_search(q: str) -> str:
+    """Gets the contents of `d.js`.
+    
+    Args:
+        q (str): The search query.
+    """
     client = Client(impersonate="chrome_127", verify=False)
 
     # Get the start page (simpler search, possibly fewer ads)
