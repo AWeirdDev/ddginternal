@@ -1,0 +1,18 @@
+site_name: ddginternal
+repo_url: https://github.com/AWeirdDev/ddginternal
+repo_name: AWeirdDev/ddginternal
+theme:
+  name: material
+  palette:
+    primary: black
+  icon:
+    logo: simple/duckduckgo
+    repo: simple/github
+  font:
+    text: Inter
+markdown_extensions:
+  - pymdownx.highlight:
+      use_pygments: true
+      pygments_lang_class: true
+      auto_title: true
+  - pymdownx.superfences

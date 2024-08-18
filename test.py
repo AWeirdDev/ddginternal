@@ -1,12 +1,3 @@
-import asyncio
-from ddginternal import search
+import ddginternal
 
-
-async def main():
-    q = input("input > ")
-    res = search(q)
-    print(res)
-    print(res.web[0])
-
-
-asyncio.run(main())
+print(ddginternal.get_djs("asdfadsf"))

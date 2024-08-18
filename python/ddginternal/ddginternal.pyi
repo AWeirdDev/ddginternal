@@ -1,4 +1,6 @@
-from typing import List
+"""Duckduckgo internal APIs from Rust."""
+
+from typing import List, Optional
 
 def get_djs(html: str) -> str:
     """Gets `d.js` from the initial HTML.
@@ -42,4 +44,4 @@ class NewsArticle:
     url: str
     source: str
     relative_time: str
-    image: str
+    image: Optional[str]
