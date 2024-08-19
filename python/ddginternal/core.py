@@ -1,4 +1,5 @@
-from typing import Dict, Literal
+from concurrent.futures import Future, ThreadPoolExecutor
+from typing import Dict, List, Literal, Optional, Tuple, Union, overload
 
 from .ddginternal import (
     Result,
@@ -8,6 +9,10 @@ from .ddginternal import (
     assign_nrj_instances,
 )
 from .primp import Client, Response
+from .module import Module
+
+native_modules_interpretation = {"places": "maps_places"}
+native_modules = list(native_modules_interpretation.values())
 
 
 def raise_for_status(res: Response):
@@ -44,31 +49,76 @@ def organic_search(q: str) -> Dict[Literal["html", "djs"], str]:
     return {"html": res.text, "djs": djs_res.text}
 
 
-def get_module(name: str) -> str:
-    client = Client(impersonate="chrome_127", verify=False)
+def get_module(client: Client, name: str) -> str:
     res = client.get("https://start.duckduckgo.com" + name)
     raise_for_status(res)
     return res.text
 
 
-def load_module_from_djs(djs: str) -> list:
-    results = []
+def load_module_from_djs_concurrently(
+    djs: str,
+    *,
+    allowed_native_modules: List[str] = native_modules,
+):
+    pool = ThreadPoolExecutor()
 
-    modules = []
+    client = Client(impersonate="chrome_127", verify=False)
+
+    instances = []
+    module_futures = []
     for url, instance in get_nrj_instances(djs):
-        modules.append((get_module(url), instance))
+        if instance not in allowed_native_modules:
+            continue
 
-    for assignee in assign_nrj_instances(modules):
-        if assignee.who() == "places":
-            results.append(assignee.places())
+        instances.append(instance)
+        module_futures.append(pool.submit(get_module, client, url))
+
+    results = {}
+    for assignee in assign_nrj_instances(
+        list(zip(_gather(*module_futures), instances))
+    ):
+        who = assignee.who()
+        if who == "places":
+            results[who] = assignee.places()
 
     return results
 
 
-def get_results(html: str, djs: str) -> Result:
+def get_result(html: str, djs: str) -> Result:
     return get_result_binding(html, djs)
 
 
-def search(q: str) -> Result:
+@overload
+def search(q: str, *, modules: List[Literal["places"]]) -> Tuple[Result, Module]: ...
+
+
+@overload
+def search(q: str) -> Result: ...
+
+
+def _gather(*futures: Future):
+    return [future.result() for future in futures]
+
+
+def search(
+    q: str, *, modules: Optional[List[Literal["places"]]] = None
+) -> Union[Result, Tuple[Result, Module]]:
     res = organic_search(q)
-    return get_results(res["html"], res["djs"])
+
+    if not modules:
+        result = get_result(res["html"], res["djs"])
+        return result
+
+    executor = ThreadPoolExecutor()
+
+    initial_task = executor.submit(get_result, res["html"], res["djs"])
+    module_loader = executor.submit(
+        load_module_from_djs_concurrently,
+        res["djs"],
+        allowed_native_modules=[
+            native_modules_interpretation[name] for name in modules
+        ],
+    )
+    module_loader_future = module_loader.result()
+
+    return initial_task.result(), Module(places=module_loader_future.get("places"))

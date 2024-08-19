@@ -126,6 +126,7 @@ fn ddginternal(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(modules::assign_nrj_instances, m)?)?;
 
     m.add_class::<schema::Result>()?;
+    m.add_class::<module_places::PlacesModule>()?;
     m.add("RegexError", py.get_type_bound::<exceptions::RegexError>())?;
     Ok(())
 }
