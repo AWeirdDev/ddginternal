@@ -13,7 +13,7 @@ Duckduckgo search using the internal APIs.
 from ddginternal import search
 
 search("chocolate")
-# Result(web=[...23], images=[...20], news=[...5], abstract=Abstract())
+# Result(web=[...23], images=[...20], news=[...5], abstract=Abstract(...))
 ```
 
 The numbers indicate the amount of results received.
