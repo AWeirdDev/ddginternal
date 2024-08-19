@@ -103,9 +103,8 @@ pub struct ImageResults {
 pub struct NewsArticle {
     #[pyo3(get)]
     date: u64,
-
-    #[pyo3(get)]
-    excerpt: String,
+    
+    _excerpt: String,
 
     #[pyo3(get)]
     image: Option<String>,
@@ -125,11 +124,16 @@ pub struct NewsArticle {
 
 #[pymethods]
 impl NewsArticle {
+    #[getter]
+    fn excerpt(&self) -> String {
+        html2text::from_read(self._excerpt.as_bytes(), usize::MAX)
+    }
+    
     fn __repr__(&self) -> String {
         format!(
             "NewsArticle(date={:?}, excerpt={:?}, image={:?}, relative_time={:?}, source={:?}, title={:?}, url={:?})",
             self.date, 
-            self.excerpt, 
+            self.excerpt(), 
             self.image.to_owned().unwrap_or("None".to_string()),
             self.relative_time,
             self.source,
