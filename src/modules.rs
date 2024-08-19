@@ -4,6 +4,7 @@ use regex::Regex;
 use crate::exceptions;
 use crate::module_base::Module;
 use crate::module_places;
+use crate::module_recipes;
 
 #[pyfunction]
 pub fn get_nrj_instances(djs: String) -> PyResult<Vec<(String, String)>> {
@@ -44,6 +45,7 @@ pub fn get_nrj_instances(djs: String) -> PyResult<Vec<(String, String)>> {
 #[pyclass]
 pub enum Assignee {
     Places(module_places::PlacesModule),
+    Recipes(module_recipes::RecipesModule),
 }
 
 #[pymethods]
@@ -51,6 +53,7 @@ impl Assignee {
     fn who(&self) -> String {
         match self {
             Assignee::Places(_) => "places",
+            Assignee::Recipes(_) => "recipes",
         }
         .to_string()
     }
@@ -58,9 +61,17 @@ impl Assignee {
     fn places(&self) -> PyResult<module_places::PlacesModule> {
         match self {
             Assignee::Places(m) => Ok(m.to_owned()),
-            #[allow(unreachable_patterns)]
             _ => Err(pyo3::exceptions::PyNameError::new_err(
                 "not a places module",
+            )),
+        }
+    }
+
+    fn recipes(&self) -> PyResult<module_recipes::RecipesModule> {
+        match self {
+            Assignee::Recipes(m) => Ok(m.to_owned()),
+            _ => Err(pyo3::exceptions::PyNameError::new_err(
+                "not a recipes module",
             )),
         }
     }
@@ -74,6 +85,9 @@ pub fn assign_nrj_instances(instances: Vec<(String, String)>) -> Vec<Assignee> {
         match instance.as_str() {
             "maps_places" => assignees.push(Assignee::Places(
                 module_places::PlacesModule::from_instance(nrj),
+            )),
+            "recipes" => assignees.push(Assignee::Recipes(
+                module_recipes::RecipesModule::from_instance(nrj),
             )),
             _ => println!(
                 "ddginternal: warning: unimplemented nrj instance: {:?}",

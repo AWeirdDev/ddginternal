@@ -8,6 +8,7 @@ mod schema;
 // extension modules (through nrj(...) in d.js)
 mod module_base;
 mod module_places;
+mod module_recipes;
 mod modules;
 
 #[pyfunction]

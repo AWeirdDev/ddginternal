@@ -11,7 +11,7 @@ from .ddginternal import (
 from .primp import Client, Response
 from .module import Module
 
-native_modules_interpretation = {"places": "maps_places"}
+native_modules_interpretation = {"places": "maps_places", "recipes": "recipes"}
 native_modules = list(native_modules_interpretation.values())
 
 
@@ -80,6 +80,9 @@ def load_module_from_djs_concurrently(
         who = assignee.who()
         if who == "places":
             results[who] = assignee.places()
+
+        elif who == "recipes":
+            results[who] = assignee.recipes()
 
     return results
 

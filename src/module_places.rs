@@ -95,7 +95,7 @@ pub struct Review {
 
 impl module_base::Module for PlacesModule {
     fn from_instance(nrj: String) -> Self {
-        let data = nrj.split_once("(").unwrap().1.strip_suffix(')').unwrap();
+        let data = nrj.split_once('(').unwrap().1.strip_suffix(')').unwrap();
         let value = serde_json::from_str::<Value>(data).unwrap_or(Value::default());
 
         Self {
