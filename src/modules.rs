@@ -8,9 +8,17 @@ use crate::module_places;
 #[pyfunction]
 pub fn get_nrj_instances(djs: String) -> PyResult<Vec<(String, String)>> {
     let re = Regex::new(r"(?m)nrj\('(/[^/]+\.js.*)'.*,'(.+?)'\);");
+    let re2 = Regex::new(r"(?m)nrj\('(/js/spice/recipes/.+)',.+,'recipes'\);");
 
+    if let Err(_) = re2 {
+        return Err(exceptions::RegexError::new_err(
+            "failed to compile regex (2)",
+        ));
+    }
+
+    let re2 = re2.unwrap();
     if let Ok(re) = re {
-        Ok(re
+        let mut results = re
             .captures_iter(&djs)
             .map(|c| {
                 (
@@ -18,7 +26,16 @@ pub fn get_nrj_instances(djs: String) -> PyResult<Vec<(String, String)>> {
                     c.get(2).unwrap().as_str().to_string(),
                 )
             })
-            .collect::<Vec<_>>())
+            .collect::<Vec<_>>();
+
+        if let Some(m) = re2.captures_iter(&djs).next() {
+            results.push((
+                m.get(1).unwrap().as_str().to_string(),
+                "recipes".to_string(),
+            ));
+        }
+
+        Ok(results)
     } else {
         Err(exceptions::RegexError::new_err("failed to compile regex"))
     }

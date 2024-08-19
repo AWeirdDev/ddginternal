@@ -1,4 +1,6 @@
-from ddginternal import search
+from ddginternal import get_nrj_instances
+from ddginternal.core import organic_search
 
-results = search("boba shops", modules=["places"])
-print(results[1].places)
+search = organic_search("chocolate cookies")["djs"]
+print(search)
+print(get_nrj_instances(search))
