@@ -32,15 +32,22 @@ Abstract(text="Chocolate or cocoa is a food made from roasted and ground cocoa s
 You can then get each result of a category, and use it everywhere in your apps.
 
 ## Using modules
-On top of the regular search results (for example, web links), DuckDuckGo tends to load **modules** to make the results even more complete, but those require conccurent requests thus it's not enabled by default. There is currently one module named `places`, which points to the "places" module. For example, you might want to search boba shops near you, you can do:
+On top of the regular search results (for example, web links), DuckDuckGo tends to load **modules** to make the results even more complete, but those require conccurent requests thus it's not enabled by default.
+For instance, you can enable `recipes` which points to the "recipes" module. For example, you might want to search boba shops near you, you can do:
 
 ```python
-# tag: v0.1.2 [unreleased]
-# Enable multiple modules with `modules=[...]`
-result, mod = search("boba shop", modules=["places"])
-print(mod.places)
+from ddginternal import search
+
+result, mod = search("chocolate cookies", modules=["recipes"])
+
+if mod.recipes:
+    recipe = mod.recipes.results[0]
+    print("#", recipe.title)
+    print(recipe.summary)
+    print("score:", recipe.spoonacular_score)
 ```
 
 The `result` is same as the above, but an additional module is returned. Depending on what you enabled, you can load the module contents by getting an attribute by the module name.
 
-This is still in beta, and the API is subject to change.
+!! warning
+    This is still in beta, and the API is subject to change.
