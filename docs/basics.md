@@ -49,5 +49,6 @@ if mod.recipes:
 
 The `result` is same as the above, but an additional module is returned. Depending on what you enabled, you can load the module contents by getting an attribute by the module name.
 
-!! warning
+!!! example "Experimental"
+    
     This is still in beta, and the API is subject to change.
