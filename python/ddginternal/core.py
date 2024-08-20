@@ -17,7 +17,7 @@ from .utils import raise_for_status
 ModuleNames = Literal["places", "recipes"]
 
 
-def organic_search(q: str) -> Dict[Literal["html", "djs"], str]:
+def organic_search(q: str, **kwargs) -> Dict[Literal["html", "djs"], str]:
     """Gets the contents of `d.js` and the HTML.
 
     Example:
@@ -28,6 +28,7 @@ def organic_search(q: str) -> Dict[Literal["html", "djs"], str]:
 
     Args:
         q (str): The search query.
+        **kwargs: Additional parameters to be passed to the search query, allowing for fine-tuning of the search.
 
     Returns:
         dict["html" | "djs", str]: The contents of `d.js` and the HTML.
@@ -41,7 +42,7 @@ def organic_search(q: str) -> Dict[Literal["html", "djs"], str]:
     # The /d.js file stores all information about the search results
     djs_url = get_djs(res.text)
 
-    djs_res = client.get("https://links.duckduckgo.com" + djs_url)
+    djs_res = client.get("https://links.duckduckgo.com" + djs_url, params=kwargs)
     raise_for_status(djs_res)
 
     return {"html": res.text, "djs": djs_res.text}
@@ -91,7 +92,7 @@ def search(q: str) -> Result:
 
 
 def search(
-    q: str, *, modules: Optional[List[ModuleNames]] = None
+    q: str, *, modules: Optional[List[ModuleNames]] = None, **kwargs
 ) -> Union[Result, Tuple[Result, Module]]:
     """Search with DuckDuckGo.
 
@@ -101,12 +102,13 @@ def search(
     Args:
         q (str): The query.
         modules (Optional[list[ModuleNames]]): The modules to enable. Default is None.
+        **kwargs: Additional parameters to be passed to the search query, allowing for fine-tuning of the search.
 
     Returns:
         Result | tuple[Result, Module]: The result or the contents of the modules selected.
     """
 
-    res = organic_search(q)
+    res = organic_search(q, **kwargs)
 
     if not modules:
         result = get_result(res["html"], res["djs"])
@@ -114,17 +116,19 @@ def search(
 
     executor = ThreadPoolExecutor()
 
-    initial_task = executor.submit(get_result, res["html"], res["djs"])
-    module_loader = executor.submit(
-        load_module_from_djs_concurrently,
-        res["djs"],
-        allowed_native_modules=[
-            native_modules_interpretation[name] for name in modules
-        ],
-    )
-    module_loader_future = module_loader.result()
+    with ThreadPoolExecutor() as executor:
+        initial_task = executor.submit(get_result, res["html"], res["djs"])
+        module_loader = executor.submit(
+            load_module_from_djs_concurrently,
+            res["djs"],
+            allowed_native_modules=[
+                native_modules_interpretation[name] for name in modules
+            ],
+        )
+        result = initial_task.result()
+        module_loader_future = module_loader.result()
 
-    return initial_task.result(), Module(
+    return result, Module(
         places=module_loader_future.get("places"),
         recipes=module_loader_future.get("recipes"),
     )
