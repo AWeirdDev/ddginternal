@@ -115,3 +115,57 @@ class Review:
     rating: int
     time_created: int
     user: Dict[str, str]
+
+class RecipesModule:
+    type: str
+    results: List["Recipe"]
+
+class Recipe:
+    vegetarian: bool
+    vegan: bool
+    gluten_free: bool
+    dairy_free: bool
+    very_healthy: bool
+    cheap: bool
+    very_popular: bool
+    sustainable: bool
+    low_fodmap: bool
+    weight_watcher_smart_points: int
+    gaps: str
+    preparation_minutes: int
+    cooking_minutes: int
+    ready_in_minutes: int
+    aggregate_likes: int
+    health_score: int
+    credits_text: str
+    source_name: str
+    price_per_serving: float
+    extended_ingredients: List["ExtendedIngredient"]
+    title: str
+    servings: int
+    source_url: str
+    image: str
+    raw_summary: str
+    summary: str
+    cuisines: List[str]
+    dish_types: List[str]
+    diets: List[str]
+    occasions: List[str]
+    spoonacular_score: float
+
+class ExtendedIngredient:
+    aisle: str
+    consistency: str
+    name: str
+    name_clean: str
+    original: str
+    original_name: str
+    amount: float
+    unit: str
+    meta: List[str]
+    measures: Dict[str, "Measure"]
+
+class Measure:
+    amount: float
+    unit_short: str
+    unit_long: str

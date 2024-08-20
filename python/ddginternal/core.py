@@ -1,22 +1,20 @@
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Literal, Optional, Tuple, Union, overload
 
 from .ddginternal import (
     Result,
     get_djs,
     get_result_binding,
-    get_nrj_instances,
-    assign_nrj_instances,
 )
-from .primp import Client, Response
-from .module import Module
+from .modules import (
+    Module,
+    load_module_from_djs_concurrently,
+    native_modules_interpretation,
+)
+from .primp import Client
+from .utils import raise_for_status
 
-native_modules_interpretation = {"places": "maps_places", "recipes": "recipes"}
-native_modules = list(native_modules_interpretation.values())
-
-
-def raise_for_status(res: Response):
-    assert res.status_code == 200, res.text
+ModuleNames = Literal["places", "recipes"]
 
 
 def organic_search(q: str) -> Dict[Literal["html", "djs"], str]:
@@ -49,63 +47,65 @@ def organic_search(q: str) -> Dict[Literal["html", "djs"], str]:
     return {"html": res.text, "djs": djs_res.text}
 
 
-def get_module(client: Client, name: str) -> str:
-    res = client.get("https://start.duckduckgo.com" + name)
-    raise_for_status(res)
-    return res.text
-
-
-def load_module_from_djs_concurrently(
-    djs: str,
-    *,
-    allowed_native_modules: List[str] = native_modules,
-):
-    pool = ThreadPoolExecutor()
-
-    client = Client(impersonate="chrome_127", verify=False)
-
-    instances = []
-    module_futures = []
-    for url, instance in get_nrj_instances(djs):
-        if instance not in allowed_native_modules:
-            continue
-
-        instances.append(instance)
-        module_futures.append(pool.submit(get_module, client, url))
-
-    results = {}
-    for assignee in assign_nrj_instances(
-        list(zip(_gather(*module_futures), instances))
-    ):
-        who = assignee.who()
-        if who == "places":
-            results[who] = assignee.places()
-
-        elif who == "recipes":
-            results[who] = assignee.recipes()
-
-    return results
-
-
 def get_result(html: str, djs: str) -> Result:
     return get_result_binding(html, djs)
 
 
 @overload
-def search(q: str, *, modules: List[Literal["places"]]) -> Tuple[Result, Module]: ...
+def search(q: str, *, modules: List[ModuleNames]) -> Tuple[Result, Module]:
+    """Search with additional modules.
+
+    Example:
+    .. code-block:: python
+
+        result, mod = search("boba shop", modules=["places"])
+        print(result.web[0])
+        print(mod.places)
+
+    Args:
+        q (str): The query.
+        modules (list[ModuleNames]): The modules to enable.
+
+    Returns:
+        tuple[Result, Module]: The first item being the result expected when using `search()`
+            normally and the second one being contents of the module selected.
+    """
 
 
 @overload
-def search(q: str) -> Result: ...
+def search(q: str) -> Result:
+    """Search with DuckDuckGo (no modules).
 
+    Example:
+    .. code-block:: python
 
-def _gather(*futures: Future):
-    return [future.result() for future in futures]
+        result = search("chocolate")
+        print(result.abstract)
+
+    Args:
+        q (str): The query.
+
+    Returns:
+        Result: The result.
+    """
 
 
 def search(
-    q: str, *, modules: Optional[List[Literal["places"]]] = None
+    q: str, *, modules: Optional[List[ModuleNames]] = None
 ) -> Union[Result, Tuple[Result, Module]]:
+    """Search with DuckDuckGo.
+
+    .. note::
+        See the documentation of each overload for more information.
+
+    Args:
+        q (str): The query.
+        modules (Optional[list[ModuleNames]]): The modules to enable. Default is None.
+
+    Returns:
+        Result | tuple[Result, Module]: The result or the contents of the modules selected.
+    """
+
     res = organic_search(q)
 
     if not modules:

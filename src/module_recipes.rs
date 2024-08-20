@@ -6,7 +6,7 @@ use serde_json::Value;
 use crate::module_base::Module;
 
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RecipesModule {
     #[pyo3(get, name = "type")]
     type_: String,
@@ -15,7 +15,7 @@ pub struct RecipesModule {
 }
 
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Recipe {
     #[pyo3(get)]
     vegetarian: bool,
@@ -88,7 +88,7 @@ impl Recipe {
 }
 
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ExtendedIngredient {
     #[pyo3(get)]
     aisle: String,
@@ -113,7 +113,7 @@ pub struct ExtendedIngredient {
 }
 
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Measure {
     #[pyo3(get)]
     amount: f64,
@@ -241,5 +241,12 @@ impl Module for RecipesModule {
                 })
                 .collect::<Vec<_>>(),
         }
+    }
+}
+
+#[pymethods]
+impl RecipesModule {
+    fn __repr__(&self) -> String {
+        format!("{:?}", self)
     }
 }

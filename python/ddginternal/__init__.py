@@ -1,9 +1,11 @@
 from .core import (
-    get_module,
     get_result,
-    load_module_from_djs_concurrently,
     organic_search,
     search,
+)
+from .modules import (
+    get_module,
+    load_module_from_djs_concurrently,
 )
 from .ddginternal import (
     RegexError,

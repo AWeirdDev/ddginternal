@@ -128,6 +128,7 @@ fn ddginternal(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<schema::Result>()?;
     m.add_class::<module_places::PlacesModule>()?;
+    m.add_class::<module_recipes::RecipesModule>()?;
     m.add("RegexError", py.get_type_bound::<exceptions::RegexError>())?;
     Ok(())
 }
