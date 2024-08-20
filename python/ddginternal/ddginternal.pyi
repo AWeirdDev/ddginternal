@@ -1,6 +1,6 @@
 """Duckduckgo internal APIs from Rust."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 def get_djs(html: str) -> str:
     """Gets `d.js` from the initial HTML.
@@ -75,7 +75,7 @@ class RegexError(Exception):
     """Represents a regex error."""
 
 class PlacesModule:
-    type_: str
+    type: Literal["places"]
     geoip_lat: float
     geoip_lon: float
     obfus_lat: float
@@ -117,7 +117,7 @@ class Review:
     user: Dict[str, str]
 
 class RecipesModule:
-    type: str
+    type: Literal["recipes"]
     results: List["Recipe"]
 
 class Recipe:

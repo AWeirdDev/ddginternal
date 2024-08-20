@@ -124,4 +124,7 @@ def search(
     )
     module_loader_future = module_loader.result()
 
-    return initial_task.result(), Module(places=module_loader_future.get("places"))
+    return initial_task.result(), Module(
+        places=module_loader_future.get("places"),
+        recipes=module_loader_future.get("recipes"),
+    )
