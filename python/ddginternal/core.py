@@ -118,8 +118,6 @@ def search(
         result = get_result(res["html"], res["djs"])
         return result
 
-    executor = ThreadPoolExecutor()
-
     with ThreadPoolExecutor() as executor:
         initial_task = executor.submit(get_result, res["html"], res["djs"])
         module_loader = executor.submit(
