@@ -3,10 +3,6 @@ from .core import (
     organic_search,
     search,
 )
-from .modules import (
-    get_module,
-    load_module_from_djs_concurrently,
-)
 from .ddginternal import (
     RegexError,
     assign_nrj_instances,
@@ -14,6 +10,11 @@ from .ddginternal import (
     get_embedded_abstract,
     get_nrj_instances,
     get_result_binding,
+)
+from .exceptions import RateLimitError
+from .modules import (
+    get_module,
+    load_module_from_djs_concurrently,
 )
 
 __all__ = [
@@ -28,4 +29,5 @@ __all__ = [
     "load_module_from_djs_concurrently",
     "get_nrj_instances",
     "assign_nrj_instances",
+    "RateLimitError",
 ]

@@ -1,3 +1,9 @@
-from ddginternal import search
+import ddginternal
 
-print(search("the lyrics of tek it").web[:3])
+result, mod = ddginternal.search("高田", modules=["places"])
+
+if mod.places:
+    result = mod.places.results[0]
+    print(result.name)
+    print(result.address)
+    print(result.rating)

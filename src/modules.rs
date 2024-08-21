@@ -83,12 +83,18 @@ pub fn assign_nrj_instances(instances: Vec<(String, String)>) -> Vec<Assignee> {
 
     for (nrj, instance) in instances {
         match instance.as_str() {
-            "maps_places" => assignees.push(Assignee::Places(
-                module_places::PlacesModule::from_instance(nrj),
-            )),
-            "recipes" => assignees.push(Assignee::Recipes(
-                module_recipes::RecipesModule::from_instance(nrj),
-            )),
+            "maps_places" => {
+                let binding = module_places::PlacesModule::from_instance(nrj);
+                if let Some(p) = binding {
+                    assignees.push(Assignee::Places(p))
+                }
+            }
+            "recipes" => {
+                let binding = module_recipes::RecipesModule::from_instance(nrj);
+                if let Some(r) = binding {
+                    assignees.push(Assignee::Recipes(r))
+                }
+            }
             _ => println!(
                 "ddginternal: warning: unimplemented nrj instance: {:?}",
                 instance

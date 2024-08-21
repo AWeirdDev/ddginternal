@@ -124,17 +124,11 @@ pub struct Measure {
 }
 
 impl Module for RecipesModule {
-    fn from_instance(nrj: String) -> Self {
-        let data = nrj
-            .split_once('(')
-            .unwrap()
-            .1
-            .trim()
-            .strip_suffix(");")
-            .unwrap();
+    fn from_instance(nrj: String) -> Option<Self> {
+        let data = nrj.split_once('(')?.1.trim().strip_suffix(");")?;
         let value = serde_json::from_str::<Value>(&data).unwrap_or(Value::default());
 
-        Self {
+        Some(Self {
             type_: "recipes".to_string(),
             results: value["results"]
                 .as_array()
@@ -240,7 +234,7 @@ impl Module for RecipesModule {
                         .collect(),
                 })
                 .collect::<Vec<_>>(),
-        }
+        })
     }
 }
 

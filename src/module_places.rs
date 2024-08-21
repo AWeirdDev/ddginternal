@@ -94,11 +94,11 @@ pub struct Review {
 }
 
 impl module_base::Module for PlacesModule {
-    fn from_instance(nrj: String) -> Self {
-        let data = nrj.split_once('(').unwrap().1.strip_suffix(')').unwrap();
+    fn from_instance(nrj: String) -> Option<Self> {
+        let data = nrj.split_once('(')?.1.strip_suffix(')')?;
         let value = serde_json::from_str::<Value>(data).unwrap_or(Value::default());
 
-        Self {
+        Some(Self {
             type_: "places".to_string(),
             geoip_lat: value["geoip_lat"].as_f64().unwrap_or(0.0),
             geoip_lon: value["geoip_lon"].as_f64().unwrap_or(0.0),
@@ -158,7 +158,7 @@ impl module_base::Module for PlacesModule {
                     reviews: Vec::new(),
                 })
                 .collect::<Vec<_>>(),
-        }
+        })
     }
 }
 

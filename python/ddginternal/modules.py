@@ -26,6 +26,9 @@ class Module:
         self.places = places
         self.recipes = recipes
 
+    def __repr__(self) -> str:
+        return f"Module(self.places={self.places}, self.recipes={self.recipes})"
+
 
 def _gather(*futures: Future):
     return [future.result() for future in futures]

@@ -45,22 +45,18 @@ fn get_embedded_abstract(html: &str) -> PyResult<String> {
     }
 }
 
-fn get_page_layout(content: String) -> String {
+fn get_page_layout(content: String) -> Option<String> {
     let page_layout = content
-        .split_once(";if (DDG.pageLayout)")
-        .unwrap()
+        .split_once(";if (DDG.pageLayout)")?
         .1
-        .split_once(";DDG.duckbar.load")
-        .unwrap()
+        .split_once(";DDG.duckbar.load")?
         .0
-        .split_once("DDG.pageLayout.load('d',")
-        .unwrap()
+        .split_once("DDG.pageLayout.load('d',")?
         .1
-        .split_once(",{\"n\":")
-        .unwrap()
+        .split_once(",{\"n\":")?
         .0;
 
-    page_layout.to_string() + "]"
+    Some(page_layout.to_string() + "]")
 }
 
 fn get_images(content: String) -> Result<String, String> {
@@ -73,7 +69,7 @@ fn get_images(content: String) -> Result<String, String> {
         .0;
 
     if images.is_empty() {
-        Err("failed to get images (quiet possibly, no images found)".to_string())
+        Err("failed to get images (quite possibly, no images found)".to_string())
     } else {
         Ok(images.to_string() + "}")
     }
@@ -89,7 +85,7 @@ fn get_news(content: String) -> Result<String, String> {
         .0;
 
     if news.is_empty() {
-        Err("failed to get news (quiet possibly, no news found)".to_string())
+        Err("failed to get news (quite possibly, no news found)".to_string())
     } else {
         Ok(news.to_string() + "}")
     }
@@ -97,7 +93,14 @@ fn get_news(content: String) -> Result<String, String> {
 
 #[pyfunction]
 fn get_result_binding(html: String, djs: String) -> PyResult<schema::Result> {
-    let page_layout = get_page_layout(djs.to_owned());
+    let page_layout = match get_page_layout(djs.to_owned()) {
+        Some(page_layout) => page_layout,
+        None => {
+            return Err(pyo3::exceptions::PyRuntimeError::new_err(
+                "failed to get page layout",
+            ))
+        }
+    };
 
     let images = {
         let images = get_images(djs.to_owned());

@@ -1,4 +1,5 @@
 pub trait Module {
-    #[allow(dead_code)]
-    fn from_instance(nrj: String) -> Self;
+    fn from_instance(nrj: String) -> Option<Self>
+    where
+        Self: Sized;
 }
