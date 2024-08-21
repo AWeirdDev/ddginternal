@@ -15,10 +15,7 @@ from .primp import Client
 from .utils import raise_for_status
 
 ModuleNames = Literal["places", "recipes"]
-user_agent = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/125.0.0.0 Safari/537.36 OPR/111.0.0.0"
-)
+
 
 def organic_search(q: str, **kwargs) -> Dict[Literal["html", "djs"], str]:
     """Gets the contents of `d.js` and the HTML.
@@ -39,7 +36,8 @@ def organic_search(q: str, **kwargs) -> Dict[Literal["html", "djs"], str]:
     client = Client(impersonate="chrome_127", verify=False)
 
     # Get the start page (simpler search, possibly fewer ads)
-    payload = {"q": q}.update(kwargs)
+    payload = {"q": q}
+    payload.update(**kwargs)
     if not payload:
         payload = {"q": q}
     res = client.get("https://start.duckduckgo.com", params=payload)
